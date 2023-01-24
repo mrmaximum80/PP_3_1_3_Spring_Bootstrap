@@ -1,6 +1,7 @@
 package springboot.app.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.transaction.annotation.Transactional;
 import springboot.app.model.Role;
 import springboot.app.model.User;
 
@@ -27,10 +28,11 @@ public interface UserService extends UserDetailsService {
 
     User getUserByUsername(String username);
 
-    User createUserPassword(User user);
+    User encodeUserPassword(User user);
 
     User addUserRoles(User user);
 
+    @Transactional
     default void defaultUsers() {
         Role user = new Role("ROLE_USER", "USER", "Пользователь");
         Role admin = new Role("ROLE_ADMIN", "ADMIN", "Администратор");
@@ -45,8 +47,10 @@ public interface UserService extends UserDetailsService {
         adminRoles.add(user);
         adminRoles.add(admin);
 
-        saveUser(new User("admin", "admin", 35, "admin@mail.ru", "admin", adminRoles));
-        saveUser(new User("user", "user", 30, "user@mail.ru", "user", userRoles));
+        saveUser(new User("admin", "admin", 35, "admin@mail.ru"
+                , "$2y$10$iJm74MemM/FtHG9DbfVEhOg/kHEtU685G5gcKE1CstCJNoXm1mV7e", adminRoles));
+        saveUser(new User("user", "user", 30, "user@mail.ru"
+                , "$2y$10$ziSaVXp8tXOltf7XE3Q4cO3gApSy4x5TSUz/I/hmiBK8khR5Jxfv2", userRoles));
 //        saveUser(new User("Семен", "Семенов", 40, "user3@mail.ru", "user3", userRoles));
 //        saveUser(new User("Василий", "Васильев", 50, "user4@mail.ru", "user4", userRoles));
 //        saveUser(new User("Сергей", "Сергеев", 60, "user5@mail.ru", "user5", userRoles));

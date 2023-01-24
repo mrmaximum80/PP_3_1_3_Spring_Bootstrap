@@ -30,7 +30,6 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    @Transactional
     public void saveUser(User user) {
         if (user.getId() == 0) {
             entityManager.persist(user);
@@ -40,7 +39,6 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    @Transactional
     public void deleteUser(long id) {
         Query query = entityManager.createQuery("delete from User where id = :userid");
         query.setParameter("userid", id);

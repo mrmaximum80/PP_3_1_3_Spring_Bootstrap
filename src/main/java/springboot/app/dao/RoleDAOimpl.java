@@ -16,7 +16,6 @@ public class RoleDAOimpl implements RoleDAO {
     private EntityManager entityManager;
 
     @Override
-    @Transactional
     public List<Role> getAllRoles() {
         Query query = entityManager.createQuery("from Role");
         List<Role> roles = query.getResultList();
@@ -24,14 +23,12 @@ public class RoleDAOimpl implements RoleDAO {
     }
 
     @Override
-    @Transactional
     public Role getRole(long id) {
         Role role = entityManager.find(Role.class, id);
         return role;
     }
 
     @Override
-    @Transactional
     public void saveRole(Role role) {
         if (role.getId() == 0) {
             entityManager.persist(role);
@@ -41,7 +38,6 @@ public class RoleDAOimpl implements RoleDAO {
     }
 
     @Override
-    @Transactional
     public void deleteRole(long id) {
         Query query = entityManager.createQuery("delete from Role where id = :roleid");
         query.setParameter("roleid", id);

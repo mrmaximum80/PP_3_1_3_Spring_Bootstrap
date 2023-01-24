@@ -2,6 +2,8 @@ package springboot.app.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import springboot.app.model.Role;
 import springboot.app.model.User;
@@ -17,14 +19,15 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
+
     private UserDAO userDAO;
-    @Autowired
     private RoleDAO roleDAO;
 
+
     @Autowired
-    public UserServiceImpl(UserDAO userDAO) {
+    public UserServiceImpl(UserDAO userDAO, RoleDAO roleDAO) {
         this.userDAO = userDAO;
+        this.roleDAO = roleDAO;
     }
 
     @Override
@@ -39,11 +42,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void saveUser(User user) {
         userDAO.saveUser(user);
     }
 
     @Override
+    @Transactional
     public void deleteUser(long id) {
         userDAO.deleteUser(id);
     }
@@ -59,11 +64,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void saveRole(Role role) {
         roleDAO.saveRole(role);
     }
 
     @Override
+    @Transactional
     public void deleteRole(long id) {
         roleDAO.deleteRole(id);
     }
@@ -74,9 +81,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUserPassword(User user) {
-        Long id = userDAO.getAllUsers().stream().map(x -> x.getId()).max(Long::compare).orElse(null);
-        user.setPassword("user" + (id + 1));
+    public User encodeUserPassword(User user) {
+//        Если новый пользователь, шифруем пароль сразу
+        if (getUserByUsername(user.getUsername()) == null) {
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+            return user;
+        }
+//        Если пользователь есть в базе, проверяем изменился ли пароль, а потом шифруем
+        if (!getUserByUsername(user.getUsername()).getPassword().equals(user.getPassword())) {
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        }
         return user;
     }
 
